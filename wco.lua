@@ -20,7 +20,7 @@ end
 
 --- 计算距离下课的时间
 -- 假设传入的参数都是合理的
--- @param part string: 一天的哪个部分 "Morning", "Afternoon" or "Night"
+-- @param part string: 一天的哪个部分 "Morning", "Afternoon" or "Evening"
 -- @param start table: 开始的时间，拥有两个字段，时 `hour` 和分 `min`
 -- @param class_ends list: 每节课结束时距离开始时间的分钟数
 -- @param last integer: 上一节课的序号，默认为 0
@@ -30,17 +30,19 @@ local function calculate(part, start, class_ends, last)
   if last == nil then
     last = 0
   end
+  local beyond = nil
   for i, t in ipairs(class_ends) do
     local left = t - offset
     if left > 0 then
       if left < 45 then
         print(string.format("%s, class %d, %d min(s) left", part, i + last, left))
       else
-        print(string.format("%s, class %d is over. Time for break now!", part,
-                            i - 1 + last))
+        print(string.format("%s, class %d is over %d min(s) ago. Time for break now!", part, i - 1 + last, beyond))
+        print(string.format("Next class will begin in %d min(s)!", left - 45))
       end
       break
     end
+    beyond = -left
   end
 end
 
@@ -65,12 +67,27 @@ elseif time.isdst and (hour > 14 or (hour == 14 and min > 30)) and
 elseif not time.isdst and (hour > 18 or (hour == 18 and min > 30)) and
   -- 非夏令时晚上
     (hour < 21 or (hour == 21 and min < 50)) then
-  calculate("Night", { hour = 18, min = 30 }, { 45, 95, 150, 200 }, 8)
+  calculate("Evening", { hour = 18, min = 30 }, { 45, 95, 150, 200 }, 8)
 elseif time.isdst and hour >= 19 and
   -- 夏令时晚上
     (hour < 22 or (hour == 22 and min < 20)) then
-  calculate("Night", { hour = 19, min = 00 }, { 45, 95, 150, 200 }, 8)
+  calculate("Evening", { hour = 19, min = 00 }, { 45, 95, 150, 200 }, 8)
 else
   -- 其他时间
   print("Time for having rest now!")
+  -- 计算距离饭点时间
+  if hour <= 14 then
+    -- 中午
+    local beyond = (hour - 11) * 60 + min - 50
+    print(string.format("Most students go for lunch after 11:50, and now it's %d min(s) past 11:50.", beyond))
+  elseif hour <= 19 then
+    -- 下午
+    if time.isdst then
+      local beyond = (hour - 18) * 60 + min
+      print(string.format("Most students go for dinner after 18:00, and now it's %d min(s) past 18:00.", beyond))
+    else
+      local beyond = (hour - 17) * 60 + min - 30
+      print(string.format("Most students go for dinner after 17:30, and now it's %d min(s) past 17:30.", beyond))
+    end
+  end
 end
