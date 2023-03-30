@@ -11,11 +11,14 @@ local time = os.date("*t")
 
 local hour = time.hour
 local min = time.min
+local sec = nil
 
 -- 时间也可以由以空格分割的时分给出
 if arg and arg[1] and arg[2] then
   hour = tonumber(arg[1], 10)
   min = tonumber(arg[2], 10)
+else
+  sec = time.sec
 end
 
 --- 计算距离下课的时间
@@ -45,6 +48,14 @@ local function calculate(part, start, class_ends, last)
     beyond = -left
   end
 end
+
+local exact = nil
+if sec then
+  exact = string.format("%02d:%02d:%02d", hour, min, sec)
+else
+  exact = string.format("%02d:%02d", hour, min)
+end
+print(string.format("It's %s now.", exact))
 
 if hour < 8 then
   -- 太早
