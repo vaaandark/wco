@@ -9,3 +9,5 @@ When will the Class be Over? 什么时候才会下课捏？
 wco              # 通过当前时间计算
 wco HOUR MIN     # 通过给出时间计算
 ```
+
+当环境变量 `LANG` 为 `zh_CN*` 时，输出为中文
