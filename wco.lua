@@ -10,6 +10,12 @@
 
 local time = os.date("*t")
 
+-- 华科夏令时从 5.1 开始
+local isdst = false
+if time.month >= 5 and time.month < 9 then
+  isdst = true
+end
+
 local hour = time.hour
 local min = time.min
 local sec = nil
@@ -98,19 +104,19 @@ elseif (hour > 8 or (hour == 8 and min > 0)) and
     hour < 11 or (hour == 11 and min < 50) then
   -- 早上
   calculate(I"Morning", { hour = 8, min = 0 }, { 45, 100, 175, 230 })
-elseif not time.isdst and (hour > 14 or (hour == 14 and min > 0)) and
+elseif not isdst and (hour > 14 or (hour == 14 and min > 0)) and
   -- 非夏令时下午
     (hour < 17 or (hour == 17 and min < 30)) then
   calculate(I"Afternoon", { hour = 14, min = 0 }, { 45, 95, 160, 210 }, 4)
-elseif time.isdst and (hour > 14 or (hour == 14 and min > 30)) and
+elseif isdst and (hour > 14 or (hour == 14 and min > 30)) and
   -- 夏令时下午
     hour < 18 then
   calculate(I"Afternoon", { hour = 14, min = 30 }, { 45, 95, 160, 210 }, 4)
-elseif not time.isdst and (hour > 18 or (hour == 18 and min > 30)) and
+elseif not isdst and (hour > 18 or (hour == 18 and min > 30)) and
   -- 非夏令时晚上
     (hour < 21 or (hour == 21 and min < 50)) then
   calculate(I"Evening", { hour = 18, min = 30 }, { 45, 95, 150, 200 }, 8)
-elseif time.isdst and hour >= 19 and
+elseif isdst and hour >= 19 and
   -- 夏令时晚上
     (hour < 22 or (hour == 22 and min < 20)) then
   calculate(I"Evening", { hour = 19, min = 00 }, { 45, 95, 150, 200 }, 8)
@@ -124,7 +130,7 @@ else
     print(string.format(I"Most students go for lunch after 11:50, and now it's %d min(s) past 11:50.", beyond))
   elseif hour <= 19 then
     -- 下午
-    if time.isdst then
+    if isdst then
       local beyond = (hour - 18) * 60 + min
       print(string.format(I"Most students go for dinner after 18:00, and now it's %d min(s) past 18:00.", beyond))
     else
