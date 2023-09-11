@@ -10,9 +10,9 @@
 
 local time = os.date("*t")
 
--- 华科夏令时从 5.1 开始
+-- 华科夏令时从 5.1 开始 9.30 结束
 local isdst = false
-if time.month >= 5 and time.month < 9 then
+if time.month >= 5 and time.month < 10 then
   isdst = true
 end
 
